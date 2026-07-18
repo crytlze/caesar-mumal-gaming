@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<div class="container" style="max-width: 600px; padding: 40px 0;">
+  <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">💰 Top Up Saldo</h1>
+  <p class="text-secondary mb-4">Isi saldo akunmu untuk transaksi lebih cepat tanpa ribet!</p>
+
+  <div class="card mb-3">
+    <div class="card-header"><h3>Saldo Saat Ini</h3></div>
+    <div class="text-center" style="padding: 20px;">
+      <div style="font-size: 2.5rem; font-weight: 800; color: var(--success);">
+        Rp <%= parseInt(user.balance || 0).toLocaleString('id-ID') %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Pilih Nominal Top Up</h3>
+      <span class="text-muted" style="font-size: 0.8rem;">Min Rp 10.000</span>
+    </div>
+    <form action="/payment/topup" method="POST">
+      <div class="form-group">
+        <label>Nominal (Rp)</label>
+        <div class="d-flex gap-2 flex-wrap mb-2">
+          <% [25000, 50000, 100000, 200000, 500000].forEach(function(n) { %>
+            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('amount').value='<%= n %>';this.style.borderColor='var(--accent)';">
+              Rp <%= n.toLocaleString('id-ID') %>
+            </button>
+          <% }) %>
+        </div>
+        <input type="number" name="amount" id="amount" class="form-control" placeholder="Masukkan nominal..." required min="10000">
+      </div>
+      <div class="form-group">
+        <label>Metode Pembayaran</label>
+        <select name="method" class="form-control" required>
+          <option value="qris">📱 QRIS (GoPay/OVO/DANA/ShopeePay)</option>
+          <option value="gopay">💚 GoPay</option>
+          <option value="dana">💙 DANA</option>
+          <option value="ovo">💜 OVO</option>
+          <option value="bca">🏦 BCA Virtual Account</option>
+          <option value="mandiri">🏦 Mandiri Virtual Account</option>
+          <option value="bri">🏦 BRI Virtual Account</option>
+          <option value="alfamart">🏪 Alfamart / Indomaret</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-success btn-block btn-lg">💳 Top Up Sekarang</button>
+      <p class="text-muted text-center mt-2" style="font-size: 0.8rem;">*Top up akan diproses otomatis dan langsung masuk ke saldo akun.</p>
+    </form>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header"><h3>📌 Riwayat Top Up</h3></div>
+    <div class="text-center text-muted" style="padding: 20px;">
+      <p>Riwayat top up akan muncul di sini.</p>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

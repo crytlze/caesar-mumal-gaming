@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Caesar Mumal Gaming Market Place' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <span class="logo-icon">🎮</span>
+        <span class="logo-text">Caesar Mumal Gaming</span>
+      </a>
+      <form action="/search" method="GET" class="navbar-search">
+        <input type="text" name="q" placeholder="Cari game (contoh: Free Fire)..." value="<%= typeof query !== 'undefined' ? query : '' %>" required>
+        <button type="submit">🔍</button>
+      </form>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <ul class="navbar-menu" id="navMenu">
+        <li style="display: flex; align-items: center;">
+          <button class="theme-toggle" id="themeToggle" title="Ganti tema siang/malam" aria-label="Toggle theme">
+            <span class="icon sun">☀️</span>
+            <span class="icon moon">🌙</span>
+          </button>
+        </li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/joki">🏆 Joki</a></li>
+        <li><a href="/akun-game">💎 Akun</a></li>
+        <li><a href="/seller/marketplace">🛍️ Marketplace</a></li>
+        <li><a href="/#games">Games</a></li>
+        <% if (user) { %>
+          <% if (user.role === 'admin') { %>
+            <li><a href="/admin">Dashboard Admin</a></li>
+          <% } %>
+          <li><a href="/seller" title="Seller Dashboard">💰 Jualan</a></li>
+          <li><a href="/payment/topup" class="btn-nav" style="background: var(--success);">💳 Top Up</a></li>
+          <li><a href="/auth/profile" class="nav-balance">Rp <%= parseInt(user.balance || 0).toLocaleString('id-ID') %></a></li>
+          <li><a href="/auth/logout" style="color: var(--danger);">Logout</a></li>
+        <% } else { %>
+          <li><a href="/auth/login">Login</a></li>
+          <li><a href="/auth/register" class="btn-nav">Daftar</a></li>
+        <% } %>
+      </ul>
+    </div>
+  </nav>
+  <% if (success && success.length > 0) { %>
+    <div class="container">
+      <div class="flash flash-success"><span>✅</span> <%= success %></div>
+    </div>
+  <% } %>
+  <% if (error && error.length > 0) { %>
+    <div class="container">
+      <div class="flash flash-error"><span>⚠️</span> <%= error %></div>
+    </div>
+  <% } %>
+  <main>

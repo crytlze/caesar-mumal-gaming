@@ -1,0 +1,82 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin" class="active">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order ${stats.pendingOrders > 0 ? `<span style="background: var(--warning); color: #000; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 700;">${stats.pendingOrders}</span>` : ''}</a>
+    <a href="/admin/games">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+    <a href="/" target="_blank" style="margin-top: auto;">🌐 Lihat Web</a>
+  </aside>
+  
+  <!-- Content -->
+  <div class="admin-content">
+    <h1>Dashboard</h1>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">Rp ${parseInt(stats.totalRevenue).toLocaleString('id-ID')}</div>
+        <div class="stat-label">Total Pendapatan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-value">${stats.totalOrders}</div>
+        <div class="stat-label">Total Pesanan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎮</div>
+        <div class="stat-value">${stats.totalGames}</div>
+        <div class="stat-label">Game Aktif</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">${stats.totalUsers}</div>
+        <div class="stat-label">Total Pengguna</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h3>Pesanan Terbaru</h3>
+        <a href="/admin/orders" class="btn btn-sm btn-outline">Lihat Semua</a>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Game/Produk</th>
+              <th>Target</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Tanggal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recentOrders.map(o => `
+              <tr>
+                <td><strong>${o.order_id}</strong></td>
+                <td>${o.username || 'Tamu'}</td>
+                <td>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">${o.game_name}</div>
+                  <div>${o.product_name}</div>
+                </td>
+                <td>${o.game_user_id} ${o.game_server ? `(${o.game_server})` : ''}</td>
+                <td>Rp ${parseInt(o.total_price).toLocaleString('id-ID')}</td>
+                <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+                <td class="text-muted" style="font-size: 0.8rem;">${new Date(o.created_at).toLocaleString('id-ID')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+` }) %>

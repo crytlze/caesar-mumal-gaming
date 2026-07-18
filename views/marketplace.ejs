@@ -1,0 +1,64 @@
+<%- include('partials/header') %>
+<div class="container" style="padding: 40px 0;">
+  <div class="section-header">
+    <div class="section-header-left">
+      <h2>🛍️ Marketplace Member</h2>
+      <p class="subtitle">Jual beli akun, joki, dan top-up antar member — semua terverifikasi!</p>
+    </div>
+  </div>
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <a href="/seller/marketplace" class="btn <%= !selectedCategory ? 'btn-primary' : 'btn-outline' %> btn-sm">Semua</a>
+    <a href="/seller/marketplace?category=akun" class="btn <%= selectedCategory === 'akun' ? 'btn-primary' : 'btn-outline' %> btn-sm">💎 Akun Game</a>
+    <a href="/seller/marketplace?category=joki" class="btn <%= selectedCategory === 'joki' ? 'btn-primary' : 'btn-outline' %> btn-sm">🏆 Jasa Joki</a>
+    <a href="/seller/marketplace?category=topup" class="btn <%= selectedCategory === 'topup' ? 'btn-primary' : 'btn-outline' %> btn-sm">🔄 Top Up / Lainnya</a>
+    <% if (user) { %><a href="/seller/create" class="btn btn-success btn-sm">+ Jual</a><% } %>
+  </div>
+  <form action="/seller/marketplace" method="GET" class="d-flex gap-2 mb-4">
+    <input type="text" name="search" class="form-control" placeholder="Cari di marketplace..." value="<%= searchQuery || '' %>">
+    <button type="submit" class="btn btn-primary">🔍 Cari</button>
+  </form>
+  <% if (listings && listings.length > 0) { %>
+    <div class="d-flex flex-wrap gap-3">
+      <% listings.forEach(function(l) { %>
+        <div class="card" style="flex: 1; min-width: 300px; max-width: 400px; display: flex; flex-direction: column; position: relative;">
+          <% if (l.featured) { %><div style="position: absolute; top: -1px; left: -1px; background: var(--gradient-accent); color: white; padding: 4px 14px; border-radius: 0 0 var(--radius-sm) 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;">⭐ FEATURED</div><% } %>
+          <div class="d-flex align-center gap-3 mb-3">
+            <div style="width: 56px; height: 56px; background: var(--bg-input); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid var(--border);"><%= l.category === 'akun' ? '💎' : l.category === 'joki' ? '🏆' : '🔄' %></div>
+            <div>
+              <h4 style="font-weight: 700; font-size: 1rem;"><%= l.title.length > 50 ? l.title.substring(0,50)+'...' : l.title %></h4>
+              <div class="d-flex gap-2 align-center">
+                <span class="status-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); text-transform: capitalize; font-size: 0.65rem;"><%= l.game_name %></span>
+                <span class="status-badge" style="background: rgba(16,185,129,0.08); color: var(--text-muted); border: 1px solid var(--border); font-size: 0.65rem;"><%= l.category %></span>
+              </div>
+            </div>
+          </div>
+          <div style="flex: 1; margin-bottom: 12px;">
+            <p class="text-muted" style="font-size: 0.85rem; line-height: 1.6;"><%= (l.description || 'Tidak ada deskripsi.').length > 120 ? (l.description || '').substring(0,120)+'...' : (l.description || 'Tidak ada deskripsi.') %></p>
+          </div>
+          <div class="d-flex align-center justify-between" style="border-top: 1px solid var(--border); padding-top: 12px;">
+            <div>
+              <div class="text-muted" style="font-size: 0.7rem;">Harga</div>
+              <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">
+                Rp <%= parseInt(l.price).toLocaleString('id-ID') %>
+                <% if (l.original_price) { %><span class="text-muted" style="font-size: 0.8rem; text-decoration: line-through; font-weight: 400;">Rp <%= parseInt(l.original_price).toLocaleString('id-ID') %></span><% } %>
+              </div>
+            </div>
+            <div class="d-flex gap-1">
+              <a href="/seller/listing/<%= l.id %>" class="btn btn-sm btn-outline">Detail</a>
+              <a href="https://wa.me/6281234567890?text=Halo%20saya%20tertarik%20dengan%20listing%20Anda%20di%20Caesar%20Mumal%20Gaming%3A%20<%= encodeURIComponent(l.title) %>" target="_blank" class="btn btn-sm btn-success">Chat</a>
+            </div>
+          </div>
+          <div class="text-muted mt-1" style="font-size: 0.7rem;">👤 <%= l.username %> · 👁 <%= l.views %> · <%= new Date(l.created_at).toLocaleDateString('id-ID') %></div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card text-center" style="padding: 60px;">
+      <div style="font-size: 4rem; margin-bottom: 16px;">📭</div>
+      <h3 style="color: var(--text-secondary);">Belum ada listing</h3>
+      <p class="text-muted mt-2">Belum ada member yang jual di kategori ini. Jadi yang pertama!</p>
+      <% if (user) { %><a href="/seller/create" class="btn btn-primary btn-lg mt-3">🚀 Mulai Jual</a><% } else { %><a href="/auth/login" class="btn btn-primary btn-lg mt-3">Login untuk Jual</a><% } %>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

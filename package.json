@@ -1,0 +1,26 @@
+{
+  "name": "caesar-mumal-gaming-market",
+  "version": "1.0.0",
+  "description": "Caesar Mumal Gaming Market Place - Top Up Game Marketplace",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seed.js"
+  },
+  "keywords": [
+    "topup",
+    "game",
+    "marketplace"
+  ],
+  "author": "Caesar Mumal Gaming Market Place",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}

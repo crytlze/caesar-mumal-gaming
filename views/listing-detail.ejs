@@ -1,0 +1,128 @@
+<%- include('partials/header') %>
+<div class="container" style="max-width: 800px; padding: 40px 0;">
+  <a href="/seller/marketplace" class="btn btn-outline mb-3">← Kembali ke Marketplace</a>
+
+  <div class="card">
+    <div class="d-flex align-center gap-3 mb-3">
+      <div style="width: 64px; height: 64px; background: var(--bg-input); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 1px solid var(--border);">
+        <%= listing.category === 'akun' ? '💎' : listing.category === 'joki' ? '🏆' : '🔄' %>
+      </div>
+      <div>
+        <h1 style="font-size: 1.4rem; font-weight: 800;"><%= listing.title %></h1>
+        <div class="d-flex gap-2 align-center flex-wrap mt-1">
+          <span class="status-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border);"><%= listing.game_name %></span>
+          <span class="status-badge" style="background: rgba(16,185,129,0.08); color: var(--text-muted); border: 1px solid var(--border);"><%= listing.category %></span>
+          <span class="text-muted" style="font-size: 0.8rem;">👤 <strong><%= listing.username %></strong></span>
+          <% if (ratingStats && ratingStats.total_reviews > 0) { %>
+            <span class="status-badge" style="background: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.15);">
+              ⭐ <%= ratingStats.avg_rating %> (<%= ratingStats.total_reviews %> ulasan)
+            </span>
+          <% } else { %>
+            <span class="text-muted" style="font-size: 0.8rem;">⭐ Belum ada ulasan</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <% if (listing.image_url) { %>
+      <div style="margin-bottom: 20px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border);">
+        <img src="<%= listing.image_url %>" alt="<%= listing.title %>" style="width: 100%; max-height: 400px; object-fit: contain; background: var(--bg-input);">
+      </div>
+    <% } %>
+
+    <div class="d-flex gap-4 flex-wrap mb-4">
+      <div class="order-info-item" style="flex: 1;">
+        <div class="label">💰 Harga</div>
+        <div class="value text-success" style="font-size: 1.5rem;">
+          Rp <%= parseInt(listing.price).toLocaleString('id-ID') %>
+          <% if (listing.original_price) { %><span class="text-muted" style="font-size: 0.9rem; text-decoration: line-through; font-weight: 400;">Rp <%= parseInt(listing.original_price).toLocaleString('id-ID') %></span><% } %>
+        </div>
+      </div>
+      <div class="order-info-item" style="flex: 1;">
+        <div class="label">📞 Kontak Penjual</div>
+        <div class="value"><%= listing.contact %></div>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">📝 Deskripsi</h3>
+      <div class="text-secondary" style="line-height: 1.8; white-space: pre-wrap;"><%= listing.description || 'Tidak ada deskripsi.' %></div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="https://wa.me/6281234567890?text=Halo%2C%20saya%20tertarik%20dengan%20<%= encodeURIComponent(listing.title) %>%20milik%20<%= encodeURIComponent(listing.username) %>%20di%20Caesar%20Mumal%20Gaming" target="_blank" class="btn btn-success btn-lg flex-1"><span class="icon">📱</span> Chat Penjual</a>
+      <a href="/seller/marketplace" class="btn btn-outline btn-lg">Kembali</a>
+    </div>
+    <div class="text-muted mt-2" style="font-size: 0.8rem;">👁 <%= listing.views %> dilihat · 📅 <%= new Date(listing.created_at).toLocaleDateString('id-ID', {year:'numeric', month:'long', day:'numeric'}) %></div>
+  </div>
+
+  <!-- REVIEW SECTION -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h3>⭐ Ulasan & Rating</h3>
+      <% if (ratingStats && ratingStats.total_reviews > 0) { %>
+        <span style="color: var(--warning); font-weight: 700;">
+          <%= ratingStats.avg_rating %> / 5.0
+        </span>
+      <% } %>
+    </div>
+
+    <!-- Review Form (only for logged in users who haven't reviewed) -->
+    <% if (user && !userReview && user.id !== listing.user_id) { %>
+      <form action="/seller/review/<%= listing.id %>" method="POST" class="mb-4" style="padding: 16px; background: var(--bg-input); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 12px;">Tulis Ulasanmu</h4>
+        <div class="d-flex gap-2 align-center mb-2">
+          <label style="font-weight: 600; font-size: 0.85rem;">Rating:</label>
+          <div class="d-flex gap-1" id="starRating">
+            <% for (let s = 5; s >= 1; s--) { %>
+              <label style="cursor: pointer; font-size: 1.5rem; transition: var(--transition);" onmouseover="hoverStar(<%= s %>)" onmouseout="resetStar()" onclick="setStar(<%= s %>)">
+                <input type="radio" name="rating" value="<%= s %>" <%= s === 5 ? 'checked' : '' %> style="display: none;">
+                <span class="star" data-val="<%= s %>">☆</span>
+              </label>
+            <% } %>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <textarea name="comment" class="form-control" rows="3" placeholder="Bagaimana pengalamanmu dengan penjual ini?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">⭐ Kirim Ulasan</button>
+      </form>
+    <% } else if (user && userReview) { %>
+      <p class="text-muted" style="padding: 12px;">Kamu sudah memberikan ulasan untuk listing ini. ✅</p>
+    <% } else if (!user) { %>
+      <p class="text-muted" style="padding: 12px;"><a href="/auth/login">Login</a> untuk memberikan ulasan.</p>
+    <% } %>
+
+    <!-- Reviews List -->
+    <% if (reviews && reviews.length > 0) { %>
+      <div class="d-flex flex-column gap-2">
+        <% reviews.forEach(function(r) { %>
+          <div style="padding: 16px; background: var(--bg-input); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <div class="d-flex align-center justify-between mb-1">
+              <div class="d-flex align-center gap-2">
+                <strong><%= r.username %></strong>
+                <span style="color: var(--warning);">
+                  <% for (let i = 0; i < 5; i++) { %><%= i < r.rating ? '⭐' : '☆' %><% } %>
+                </span>
+              </div>
+              <span class="text-muted" style="font-size: 0.75rem;"><%= new Date(r.created_at).toLocaleDateString('id-ID') %></span>
+            </div>
+            <% if (r.comment) { %><p class="text-secondary" style="font-size: 0.85rem;"><%= r.comment %></p><% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="text-muted text-center" style="padding: 20px;">Belum ada ulasan untuk listing ini.</p>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  let selectedStar = 5;
+  function hoverStar(val) { document.querySelectorAll('.star').forEach(function(el) {
+    el.textContent = parseInt(el.dataset.val) <= val ? '⭐' : '☆';
+  }); }
+  function resetStar() { hoverStar(selectedStar); }
+  function setStar(val) { selectedStar = val; document.querySelector('input[name="rating"][value="'+val+'"]').checked = true; hoverStar(val); }
+</script>
+<%- include('partials/footer') %>

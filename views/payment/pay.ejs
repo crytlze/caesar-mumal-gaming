@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+<div class="container" style="max-width: 600px; padding: 40px 0;">
+  <a href="/order/<%= order.order_id %>" class="btn btn-outline mb-3">← Kembali</a>
+
+  <div class="card">
+    <div class="card-header"><h3>💳 Pembayaran</h3></div>
+
+    <div class="order-info-grid" style="margin-bottom: 24px;">
+      <div class="order-info-item">
+        <div class="label">ID Pesanan</div>
+        <div class="value"><%= order.order_id %></div>
+      </div>
+      <div class="order-info-item">
+        <div class="label">Total Pembayaran</div>
+        <div class="value text-success" style="font-size: 1.3rem; font-weight: 800;">Rp <%= parseInt(order.total_price).toLocaleString('id-ID') %></div>
+      </div>
+    </div>
+
+    <form action="/payment/pay/<%= order.order_id %>" method="POST">
+      <div class="form-group">
+        <label>Pilih Metode Pembayaran</label>
+        <div class="d-flex flex-column gap-2">
+          <label class="card" style="display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border);">
+            <input type="radio" name="method" value="saldo" checked style="width: 18px; height: 18px; accent-color: var(--accent);">
+            <span style="font-size: 1.5rem;">💰</span>
+            <div>
+              <strong>Saldo Akun</strong><br>
+              <span class="text-muted" style="font-size: 0.8rem;">Saldo: Rp <%= parseInt(user.balance || 0).toLocaleString('id-ID') %></span>
+            </div>
+          </label>
+          <label class="card" style="display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border);">
+            <input type="radio" name="method" value="qris" style="width: 18px; height: 18px; accent-color: var(--accent);">
+            <span style="font-size: 1.5rem;">📱</span>
+            <div>
+              <strong>QRIS</strong><br>
+              <span class="text-muted" style="font-size: 0.8rem;">GoPay / OVO / DANA / ShopeePay / LinkAja</span>
+            </div>
+          </label>
+          <label class="card" style="display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border);">
+            <input type="radio" name="method" value="bca" style="width: 18px; height: 18px; accent-color: var(--accent);">
+            <span style="font-size: 1.5rem;">🏦</span>
+            <div>
+              <strong>BCA Virtual Account</strong><br>
+              <span class="text-muted" style="font-size: 0.8rem;">Transfer langsung ke rekening virtual</span>
+            </div>
+          </label>
+          <label class="card" style="display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border);">
+            <input type="radio" name="method" value="alfamart" style="width: 18px; height: 18px; accent-color: var(--accent);">
+            <span style="font-size: 1.5rem;">🏪</span>
+            <div>
+              <strong>Alfamart / Indomaret</strong><br>
+              <span class="text-muted" style="font-size: 0.8rem;">Bayar di convenience store terdekat</span>
+            </div>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-block btn-lg">✅ Konfirmasi Pembayaran</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

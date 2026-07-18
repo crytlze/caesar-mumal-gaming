@@ -1,0 +1,99 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order</a>
+    <a href="/admin/games" class="active">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1>${game ? 'Edit Game' : 'Tambah Game Baru'}</h1>
+      <a href="/admin/games" class="btn btn-outline">Kembali</a>
+    </div>
+    
+    <div class="card">
+      <form action="/admin/games/${game ? 'edit/' + game.id : 'add'}" method="POST">
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Nama Game</label>
+            <input type="text" name="name" class="form-control" value="${game ? game.name : ''}" required>
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Slug (URL) - Kosongkan untuk auto-generate</label>
+            <input type="text" name="slug" class="form-control" value="${game ? game.slug : ''}">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>URL Logo (bisa lokal /img/games/... atau url web)</label>
+          <input type="text" name="logo" class="form-control" value="${game ? game.logo : ''}">
+        </div>
+        
+        <div class="form-group">
+          <label>Deskripsi (Opsional)</label>
+          <textarea name="description" class="form-control">${game ? (game.description || '') : ''}</textarea>
+        </div>
+        
+        <h3 class="mt-3 mb-2" style="font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Pengaturan Form Top Up</h3>
+        
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Label Input ID (Contoh: User ID / Player ID)</label>
+            <input type="text" name="id_label" class="form-control" value="${game ? game.id_label : 'User ID'}" required>
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Placeholder Input ID</label>
+            <input type="text" name="id_placeholder" class="form-control" value="${game ? game.id_placeholder : 'Masukkan User ID'}">
+          </div>
+        </div>
+        
+        <div class="form-group mt-2">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" name="has_server" id="hasServer" ${game && game.has_server ? 'checked' : ''} onchange="document.getElementById('serverFields').style.display = this.checked ? 'flex' : 'none'">
+            Game ini butuh input Server/Zone ID?
+          </label>
+        </div>
+        
+        <div class="d-flex gap-2 flex-wrap" id="serverFields" style="display: ${game && game.has_server ? 'flex' : 'none'}; background: rgba(99, 102, 241, 0.05); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <div class="form-group" style="flex: 1; min-width: 250px; margin: 0;">
+            <label>Label Input Server (Contoh: Server ID / Zone ID)</label>
+            <input type="text" name="server_label" class="form-control" value="${game ? game.server_label : 'Server ID'}">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 250px; margin: 0;">
+            <label>Placeholder Input Server</label>
+            <input type="text" name="server_placeholder" class="form-control" value="${game ? game.server_placeholder : 'Masukkan Server ID'}">
+          </div>
+        </div>
+        
+        <h3 class="mt-3 mb-2" style="font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Lainnya</h3>
+        
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Urutan Tampil (Angka terkecil tampil duluan)</label>
+            <input type="number" name="sort_order" class="form-control" value="${game ? game.sort_order : '0'}">
+          </div>
+          
+          ${game ? `
+          <div class="form-group" style="flex: 1; min-width: 250px;">
+            <label>Status Game</label>
+            <select name="is_active" class="form-control">
+              <option value="1" ${game.is_active ? 'selected' : ''}>Aktif (Tampil)</option>
+              <option value="0" ${!game.is_active ? 'selected' : ''}>Nonaktif (Sembunyikan)</option>
+            </select>
+          </div>
+          ` : ''}
+        </div>
+        
+        <div class="mt-3">
+          <button type="submit" class="btn btn-primary btn-lg">${game ? 'Update Game' : 'Simpan Game'}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+` }) %>

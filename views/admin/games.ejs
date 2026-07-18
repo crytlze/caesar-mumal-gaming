@@ -1,0 +1,62 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order</a>
+    <a href="/admin/games" class="active">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1>Kelola Game</h1>
+      <a href="/admin/games/add" class="btn btn-primary">+ Tambah Game</a>
+    </div>
+    
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Logo</th>
+              <th>Nama Game / Slug</th>
+              <th>Status</th>
+              <th>Produk</th>
+              <th>Urutan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${games.map(g => `
+              <tr>
+                <td><img src="${g.logo}" alt="${g.name}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: contain; background: var(--bg-input); padding: 4px;"></td>
+                <td>
+                  <strong>${g.name}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">${g.slug}</div>
+                </td>
+                <td>
+                  ${g.is_active ? '<span class="status-badge status-success">Aktif</span>' : '<span class="status-badge status-failed">Nonaktif</span>'}
+                </td>
+                <td><a href="/admin/products?game_id=${g.id}" class="text-info">${g.product_count} produk</a></td>
+                <td>${g.sort_order}</td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="/admin/games/edit/${g.id}" class="btn btn-sm btn-outline">Edit</a>
+                    <form action="/admin/games/delete/${g.id}" method="POST" onsubmit="return confirm('Yakin ingin menghapus game ini? Semua produk terkait juga akan terhapus!');" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+            ${games.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">Belum ada game.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+` }) %>

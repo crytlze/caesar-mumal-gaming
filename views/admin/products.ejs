@@ -1,0 +1,195 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order</a>
+    <a href="/admin/games">🎮 Kelola Game</a>
+    <a href="/admin/products" class="active">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <h1>Kelola Produk</h1>
+      
+      <div class="d-flex gap-2">
+        <form action="/admin/products" method="GET" class="d-flex gap-1">
+          <select name="game_id" class="form-control" onchange="this.form.submit()" style="min-width: 200px;">
+            <option value="">Semua Game</option>
+            ${games.map(g => `<option value="${g.id}" ${selectedGame == g.id ? 'selected' : ''}>${g.name}</option>`).join('')}
+          </select>
+        </form>
+        <button onclick="document.getElementById('modalAddProduct').classList.add('active')" class="btn btn-primary">+ Tambah Produk</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Game</th>
+              <th>Nama Produk</th>
+              <th>Harga Jual</th>
+              <th>Harga Coret</th>
+              <th>Status / Promo</th>
+              <th>Urutan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${products.map(p => `
+              <tr>
+                <td><strong>${p.game_name}</strong></td>
+                <td>${p.name}</td>
+                <td class="text-success" style="font-weight: 700;">Rp ${parseInt(p.price).toLocaleString('id-ID')}</td>
+                <td class="text-muted" style="text-decoration: line-through;">${p.original_price ? 'Rp ' + parseInt(p.original_price).toLocaleString('id-ID') : '-'}</td>
+                <td>
+                  <div class="d-flex gap-1 flex-wrap">
+                    ${p.is_active ? '<span class="status-badge status-success">Aktif</span>' : '<span class="status-badge status-failed">Nonaktif</span>'}
+                    ${p.is_promo ? '<span class="status-badge" style="background: var(--danger); color: white;">PROMO</span>' : ''}
+                  </div>
+                </td>
+                <td>${p.sort_order}</td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <button onclick="editProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn btn-sm btn-outline">Edit</button>
+                    <form action="/admin/products/delete/${p.id}" method="POST" onsubmit="return confirm('Yakin ingin menghapus produk ini?');" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+            ${products.length === 0 ? '<tr><td colspan="7" class="text-center text-muted" style="padding: 30px;">Belum ada produk.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add -->
+<div class="modal-overlay" id="modalAddProduct">
+  <div class="modal">
+    <div class="d-flex" style="justify-content: space-between; margin-bottom: 20px;">
+      <h3>Tambah Produk Baru</h3>
+      <button onclick="document.getElementById('modalAddProduct').classList.remove('active')" class="btn btn-sm btn-outline">✕</button>
+    </div>
+    
+    <form action="/admin/products/add" method="POST">
+      <div class="form-group">
+        <label>Pilih Game</label>
+        <select name="game_id" class="form-control" required>
+          <option value="">-- Pilih Game --</option>
+          ${games.map(g => `<option value="${g.id}" ${selectedGame == g.id ? 'selected' : ''}>${g.name}</option>`).join('')}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Nama Item (Cth: 100 Diamonds)</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+      
+      <div class="d-flex gap-2">
+        <div class="form-group" style="flex: 1;">
+          <label>Harga Jual (Rp)</label>
+          <input type="number" name="price" class="form-control" required min="0">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Harga Coret (Opsional)</label>
+          <input type="number" name="original_price" class="form-control" min="0">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Urutan Tampil (Angka terkecil tampil duluan)</label>
+        <input type="number" name="sort_order" class="form-control" value="0">
+      </div>
+      
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" name="is_promo" value="1">
+          Tandai sebagai Flash Sale / Promo
+        </label>
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-block">Simpan Produk</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal-overlay" id="modalEditProduct">
+  <div class="modal">
+    <div class="d-flex" style="justify-content: space-between; margin-bottom: 20px;">
+      <h3>Edit Produk</h3>
+      <button onclick="document.getElementById('modalEditProduct').classList.remove('active')" class="btn btn-sm btn-outline">✕</button>
+    </div>
+    
+    <form action="" method="POST" id="formEditProduct">
+      <div class="form-group">
+        <label>Pilih Game</label>
+        <select name="game_id" id="edit_game_id" class="form-control" required>
+          ${games.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Nama Item</label>
+        <input type="text" name="name" id="edit_name" class="form-control" required>
+      </div>
+      
+      <div class="d-flex gap-2">
+        <div class="form-group" style="flex: 1;">
+          <label>Harga Jual (Rp)</label>
+          <input type="number" name="price" id="edit_price" class="form-control" required min="0">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Harga Coret (Opsional)</label>
+          <input type="number" name="original_price" id="edit_original_price" class="form-control" min="0">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Urutan Tampil</label>
+        <input type="number" name="sort_order" id="edit_sort_order" class="form-control">
+      </div>
+      
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" name="is_promo" id="edit_is_promo" value="1">
+            Produk Promo
+          </label>
+        </div>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" name="is_active" id="edit_is_active" value="1">
+            Status Aktif
+          </label>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-block">Update Produk</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function editProduct(product) {
+    document.getElementById('formEditProduct').action = '/admin/products/edit/' + product.id;
+    document.getElementById('edit_game_id').value = product.game_id;
+    document.getElementById('edit_name').value = product.name;
+    document.getElementById('edit_price').value = product.price;
+    document.getElementById('edit_original_price').value = product.original_price || '';
+    document.getElementById('edit_sort_order').value = product.sort_order;
+    document.getElementById('edit_is_promo').checked = product.is_promo == 1;
+    document.getElementById('edit_is_active').checked = product.is_active == 1;
+    
+    document.getElementById('modalEditProduct').classList.add('active');
+  }
+</script>
+` }) %>

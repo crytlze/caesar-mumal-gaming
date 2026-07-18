@@ -1,0 +1,104 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order</a>
+    <a href="/admin/games">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings" class="active">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <h1>🛍️ Kelola Listing Member</h1>
+      
+      <form action="/admin/listings" method="GET">
+        <select name="status" class="form-control" onchange="this.form.submit()" style="min-width: 200px;">
+          <option value="">Semua Status</option>
+          <option value="pending" <%= selectedStatus === 'pending' ? 'selected' : '' %>>⏳ Pending</option>
+          <option value="approved" <%= selectedStatus === 'approved' ? 'selected' : '' %>>✅ Approved</option>
+          <option value="rejected" <%= selectedStatus === 'rejected' ? 'selected' : '' %>>❌ Rejected</option>
+          <option value="sold" <%= selectedStatus === 'sold' ? 'selected' : '' %>>💰 Sold</option>
+        </select>
+      </form>
+    </div>
+    
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID & Waktu</th>
+              <th>Penjual</th>
+              <th>Kategori / Game</th>
+              <th>Judul & Harga</th>
+              <th>Dilihat</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (listings && listings.length > 0) { %>
+              <% listings.forEach(l => { %>
+                <tr>
+                  <td>
+                    <strong>#<%= l.id %></strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);"><%= new Date(l.created_at).toLocaleDateString('id-ID') %></div>
+                  </td>
+                  <td><strong><%= l.username %></strong></td>
+                  <td>
+                    <span class="status-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); text-transform: capitalize; font-size: 0.65rem;">
+                      <%= l.category === 'akun' ? '💎' : l.category === 'joki' ? '🏆' : '🔄' %> <%= l.category %>
+                    </span>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;"><%= l.game_name %></div>
+                  </td>
+                  <td>
+                    <div style="font-weight: 600; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= l.title %></div>
+                    <div style="font-weight: 700; color: var(--success);">Rp <%= parseInt(l.price).toLocaleString('id-ID') %></div>
+                  </td>
+                  <td class="text-muted"><%= l.views %></td>
+                  <td>
+                    <% if (l.status === 'approved') { %><span class="status-badge status-success">✅ Aktif</span>
+                    <% } else if (l.status === 'pending') { %><span class="status-badge status-pending" style="font-weight: 700;">⏳ Menunggu</span>
+                    <% } else if (l.status === 'rejected') { %><span class="status-badge status-failed">❌ Ditolak</span>
+                    <% } else if (l.status === 'sold') { %><span class="status-badge" style="background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid rgba(99,102,241,0.15);">💰 Terjual</span>
+                    <% } %>
+                    <div style="font-size: 0.7rem; margin-top: 4px;">
+                      <% if (l.featured) { %><span style="color: var(--gold);">⭐ Featured</span><% } %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1" style="flex-wrap: wrap;">
+                      <form action="/admin/listings/update/<%= l.id %>" method="POST" style="display:inline;">
+                        <% if (l.status === 'pending') { %>
+                          <input type="hidden" name="status" value="approved">
+                          <button type="submit" class="btn btn-sm btn-success">✅ Setuju</button>
+                        <% } %>
+                        <% if (l.status === 'pending' || l.status === 'approved') { %>
+                          <input type="hidden" name="status" value="rejected">
+                          <button type="submit" class="btn btn-sm btn-danger">❌ Tolak</button>
+                        <% } %>
+                        <% if (l.status === 'rejected') { %>
+                          <input type="hidden" name="status" value="approved">
+                          <button type="submit" class="btn btn-sm btn-success">✅ Pulihkan</button>
+                        <% } %>
+                      </form>
+                      <form action="/admin/listings/feature/<%= l.id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-warning"><%= l.featured ? '⭐ Unfeature' : '⭐ Feature' %></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="7" class="text-center text-muted" style="padding: 30px;">Belum ada listing dari member.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+` }) %>

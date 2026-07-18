@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+<div class="page-404">
+  <div class="container text-center">
+    <div style="font-size: 5rem; margin-bottom: 16px;">⚠️</div>
+    <h1>Oops!</h1>
+    <p><%= typeof message !== 'undefined' ? message : 'Terjadi kesalahan pada sistem. Silakan coba lagi.' %></p>
+    <a href="/" class="btn btn-primary btn-lg">Kembali ke Beranda</a>
+  </div>
+</div>
+<%- include('partials/footer') %>

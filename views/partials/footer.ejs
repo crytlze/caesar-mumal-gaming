@@ -1,0 +1,80 @@
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="/" class="navbar-brand mb-2">
+            <span class="logo-icon">🎮</span>
+            <span class="logo-text">Caesar Mumal Gaming</span>
+          </a>
+          <p>Platform top up game termurah, tercepat, dan terpercaya di Indonesia. Proses otomatis 24 jam nonstop. Temukan game favoritmu sekarang juga!</p>
+        </div>
+        <div class="footer-col">
+          <h4>Menu Utama</h4>
+          <div class="d-flex" style="flex-direction: column; gap: 8px;">
+            <a href="/">Beranda</a>
+            <a href="/#games">Daftar Game</a>
+            <a href="/seller/marketplace">🛍️ Marketplace</a>
+            <a href="/joki">🏆 Joki Game</a>
+            <a href="/akun-game">💎 Akun Game</a>
+            <a href="/auth/login">Login / Daftar</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Bantuan</h4>
+          <div class="d-flex" style="flex-direction: column; gap: 8px;">
+            <a href="#">Cara Top Up</a>
+            <a href="#">Syarat & Ketentuan</a>
+            <a href="#">Hubungi Kami</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Ikuti Kami</h4>
+          <div class="d-flex" style="flex-direction: column; gap: 8px;">
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">TikTok</a>
+            <a href="#">Discord</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; <%= new Date().getFullYear() %> Caesar Mumal Gaming Market Place. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+  <script>
+    (function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const html = document.documentElement;
+      const savedTheme = localStorage.getItem('cmgm-theme');
+      if (savedTheme) { html.setAttribute('data-theme', savedTheme);
+      } else { const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (prefersLight) { html.setAttribute('data-theme', 'light'); } }
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          const current = html.getAttribute('data-theme');
+          const next = current === 'light' ? 'dark' : 'light';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('cmgm-theme', next);
+          this.style.transform = 'scale(0.8)';
+          setTimeout(() => { this.style.transform = ''; }, 200);
+        });
+      }
+    })();
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) { navbar.classList.add('scrolled'); }
+      else { navbar.classList.remove('scrolled'); }
+    });
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      document.getElementById('navMenu').classList.toggle('active');
+    });
+    setTimeout(() => {
+      const flashes = document.querySelectorAll('.flash');
+      flashes.forEach(f => { f.style.opacity = '0'; setTimeout(() => f.remove(), 300); });
+    }, 5000);
+  </script>
+</body>
+</html>

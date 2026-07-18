@@ -1,0 +1,123 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders" class="active">🛒 Kelola Order</a>
+    <a href="/admin/games">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <h1>Kelola Order</h1>
+      
+      <form action="/admin/orders" method="GET">
+        <select name="status" class="form-control" onchange="this.form.submit()" style="min-width: 200px;">
+          <option value="">Semua Status</option>
+          <option value="pending" ${selectedStatus === 'pending' ? 'selected' : ''}>Pending (Belum Bayar)</option>
+          <option value="processing" ${selectedStatus === 'processing' ? 'selected' : ''}>Processing (Perlu Diproses)</option>
+          <option value="success" ${selectedStatus === 'success' ? 'selected' : ''}>Success (Berhasil)</option>
+          <option value="failed" ${selectedStatus === 'failed' ? 'selected' : ''}>Failed (Gagal)</option>
+          <option value="cancelled" ${selectedStatus === 'cancelled' ? 'selected' : ''}>Cancelled (Dibatalkan)</option>
+        </select>
+      </form>
+    </div>
+    
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID & Waktu</th>
+              <th>Detail Pesanan</th>
+              <th>Target Pengiriman</th>
+              <th>Pembayaran</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders.map(o => `
+              <tr style="${o.status === 'processing' ? 'background: rgba(99, 102, 241, 0.05);' : ''}">
+                <td>
+                  <strong>${o.order_id}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">${new Date(o.created_at).toLocaleString('id-ID')}</div>
+                  <div style="font-size: 0.8rem; color: var(--accent);">${o.username || 'Tamu'}</div>
+                </td>
+                <td>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">${o.game_name}</div>
+                  <div style="font-weight: 600;">${o.product_name}</div>
+                </td>
+                <td>
+                  <div style="background: var(--bg-input); padding: 4px 8px; border-radius: 4px; display: inline-block; font-family: monospace;">
+                    ${o.game_user_id} ${o.game_server ? `(${o.game_server})` : ''}
+                  </div>
+                </td>
+                <td>
+                  <div class="text-success" style="font-weight: 700;">Rp ${parseInt(o.total_price).toLocaleString('id-ID')}</div>
+                  <div style="font-size: 0.8rem; text-transform: uppercase;">${o.payment_method}</div>
+                </td>
+                <td>
+                  <span class="status-badge status-${o.status}">${o.status}</span>
+                  ${o.notes ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${o.notes}">📝 ${o.notes}</div>` : ''}
+                </td>
+                <td>
+                  <button onclick="updateOrder('${o.id}', '${o.order_id}', '${o.status}', '${(o.notes || '').replace(/'/g, "\\'")}')" class="btn btn-sm ${o.status === 'processing' ? 'btn-primary' : 'btn-outline'}">
+                    Proses
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+            ${orders.length === 0 ? '<tr><td colspan="6" class="text-center text-muted" style="padding: 30px;">Belum ada pesanan.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Update Order -->
+<div class="modal-overlay" id="modalUpdateOrder">
+  <div class="modal">
+    <div class="d-flex" style="justify-content: space-between; margin-bottom: 20px;">
+      <h3>Update Status Pesanan <span id="display_order_id" class="text-accent"></span></h3>
+      <button onclick="document.getElementById('modalUpdateOrder').classList.remove('active')" class="btn btn-sm btn-outline">✕</button>
+    </div>
+    
+    <form action="" method="POST" id="formUpdateOrder">
+      <div class="form-group">
+        <label>Ubah Status</label>
+        <select name="status" id="update_status" class="form-control" required>
+          <option value="pending">Pending (Menunggu Pembayaran)</option>
+          <option value="processing">Processing (Sedang Diproses)</option>
+          <option value="success">Success (Berhasil Dikirim)</option>
+          <option value="failed">Failed (Gagal)</option>
+          <option value="cancelled">Cancelled (Dibatalkan)</option>
+        </select>
+        <small class="text-warning mt-1" style="display: block;">*Jika status diubah ke Failed/Cancelled dan user membayar dengan Saldo, saldo akan otomatis dikembalikan (Refund).</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Catatan Admin (Opsional)</label>
+        <textarea name="notes" id="update_notes" class="form-control" placeholder="Contoh: ID tidak valid, stok habis, dll"></textarea>
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function updateOrder(id, orderId, status, notes) {
+    document.getElementById('formUpdateOrder').action = '/admin/orders/update/' + id;
+    document.getElementById('display_order_id').innerText = '#' + orderId;
+    document.getElementById('update_status').value = status;
+    document.getElementById('update_notes').value = notes;
+    
+    document.getElementById('modalUpdateOrder').classList.add('active');
+  }
+</script>
+` }) %>

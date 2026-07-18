@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+<div class="container" style="max-width: 720px; padding: 40px 0;">
+  <a href="/seller" class="btn btn-outline mb-3">← Kembali ke Dashboard</a>
+  <div class="card">
+    <div class="card-header"><h3>✏️ Edit Listing</h3><span class="status-badge <%= listing.status === 'approved' ? 'status-success' : listing.status === 'pending' ? 'status-pending' : 'status-failed' %>"><%= listing.status %></span></div>
+    <form action="/seller/edit/<%= listing.id %>" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Kategori</label>
+        <select name="category" class="form-control" required>
+          <option value="akun" <%= listing.category === 'akun' ? 'selected' : '' %>>💎 Jual Akun Game</option>
+          <option value="joki" <%= listing.category === 'joki' ? 'selected' : '' %>>🏆 Jasa Joki</option>
+          <option value="topup" <%= listing.category === 'topup' ? 'selected' : '' %>>🔄 Top Up / Jasa Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nama Game</label>
+        <select name="game_name" class="form-control" required>
+          <option value="Mobile Legends" <%= listing.game_name === 'Mobile Legends' ? 'selected' : '' %>>Mobile Legends</option>
+          <option value="Free Fire" <%= listing.game_name === 'Free Fire' ? 'selected' : '' %>>Free Fire</option>
+          <option value="PUBG Mobile" <%= listing.game_name === 'PUBG Mobile' ? 'selected' : '' %>>PUBG Mobile</option>
+          <option value="Valorant" <%= listing.game_name === 'Valorant' ? 'selected' : '' %>>Valorant</option>
+          <option value="Genshin Impact" <%= listing.game_name === 'Genshin Impact' ? 'selected' : '' %>>Genshin Impact</option>
+          <option value="Honor of Kings" <%= listing.game_name === 'Honor of Kings' ? 'selected' : '' %>>Honor of Kings</option>
+          <option value="Call of Duty Mobile" <%= listing.game_name === 'Call of Duty Mobile' ? 'selected' : '' %>>Call of Duty Mobile</option>
+          <option value="Lainnya" <%= listing.game_name === 'Lainnya' ? 'selected' : '' %>>Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Judul Iklan</label><input type="text" name="title" class="form-control" required value="<%= listing.title %>" maxlength="100"></div>
+      <div class="form-group"><label>Deskripsi Detail</label><textarea name="description" class="form-control" rows="4"><%= listing.description || '' %></textarea></div>
+      <div class="d-flex gap-3">
+        <div class="form-group" style="flex: 1;"><label>Harga Jual (Rp)</label><input type="number" name="price" class="form-control" required min="1000" value="<%= listing.price %>"></div>
+        <div class="form-group" style="flex: 1;"><label>Harga Sebelum</label><input type="number" name="original_price" class="form-control" value="<%= listing.original_price || '' %>"></div>
+      </div>
+      <div class="form-group"><label>URL Gambar</label><input type="text" name="image_url" class="form-control" value="<%= listing.image_url || '' %>"></div>
+      <div class="form-group"><label>Upload Gambar Baru (Max 5MB)</label><input type="file" name="image" class="form-control" accept="image/*"></div>
+      <div class="form-group"><label>Kontak</label><input type="text" name="contact" class="form-control" required value="<%= listing.contact %>"></div>
+      <div class="d-flex gap-2 mt-3">
+        <a href="/seller" class="btn btn-outline flex-1">Batal</a>
+        <button type="submit" class="btn btn-primary flex-1 btn-lg">💾 Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

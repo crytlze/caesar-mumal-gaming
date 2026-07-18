@@ -1,0 +1,83 @@
+<%- include('../partials/header') %>
+<div class="container" style="padding: 40px 0;">
+  <div class="d-flex flex-wrap gap-3 justify-between align-center mb-4">
+    <div>
+      <h1 style="font-size: 1.8rem; font-weight: 800;">🛍️ Seller Dashboard</h1>
+      <p class="text-secondary">Kelola semua jualanmu — akun, joki, top-up — jadi satu!</p>
+    </div>
+    <a href="/seller/create" class="btn btn-primary btn-lg"><span class="icon">+</span> Buat Listing Baru</a>
+  </div>
+  <div class="stats-grid" style="margin-bottom: 32px;">
+    <div class="stat-card text-center"><div class="stat-icon">📦</div><div class="stat-value"><%= stats.total %></div><div class="stat-label">Total Listing</div></div>
+    <div class="stat-card text-center"><div class="stat-value text-success"><%= stats.active %></div><div class="stat-label">✅ Aktif di Marketplace</div></div>
+    <div class="stat-card text-center"><div class="stat-value text-warning"><%= stats.pending %></div><div class="stat-label">⏳ Menunggu Verifikasi</div></div>
+    <div class="stat-card text-center"><div class="stat-value" style="color: var(--accent);"><%= stats.sold %></div><div class="stat-label">💰 Terjual</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Listing Saya</h3><a href="/seller/marketplace" class="btn btn-sm btn-outline">Lihat Marketplace →</a></div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Judul</th><th>Kategori</th><th>Game</th><th>Harga</th><th>⭐ Rating</th><th>Status</th><th>Dilihat</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% if (listings && listings.length > 0) { %>
+            <% listings.forEach(function(l) { %>
+              <tr>
+                <td><strong><%= l.title.length > 30 ? l.title.substring(0,30)+'...' : l.title %></strong><br><small class="text-muted"><%= new Date(l.created_at).toLocaleDateString('id-ID') %></small></td>
+                <td><span class="status-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); text-transform: capitalize;"><%= l.category === 'akun' ? '💎' : l.category === 'joki' ? '🏆' : '🔄' %> <%= l.category %></span></td>
+                <td><%= l.game_name %></td>
+                <td class="text-success" style="font-weight: 700;">Rp <%= parseInt(l.price).toLocaleString('id-ID') %></td>
+                <td>
+                  <% if (ratingMap && ratingMap[l.id]) { %>
+                    <span style="color: var(--warning); font-weight: 600;"><%= ratingMap[l.id].avg_rating %> ⭐</span>
+                    <small class="text-muted">(<%= ratingMap[l.id].total_reviews %>)</small>
+                  <% } else { %>
+                    <span class="text-muted">-</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (l.status === 'approved') { %><span class="status-badge status-success">✅ Aktif</span>
+                  <% } else if (l.status === 'pending') { %><span class="status-badge status-pending">⏳ Pending</span>
+                  <% } else if (l.status === 'rejected') { %><span class="status-badge status-failed">❌ Ditolak</span>
+                  <% } else if (l.status === 'sold') { %><span class="status-badge" style="background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid rgba(99,102,241,0.15);">💰 Terjual</span>
+                  <% } %>
+                </td>
+                <td class="text-muted"><%= l.views %></td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="/seller/edit/<%= l.id %>" class="btn btn-sm btn-outline">Edit</a>
+                    <form action="/seller/delete/<%= l.id %>" method="POST" onsubmit="return confirm('Hapus listing ini?')" style="display:inline;"><button type="submit" class="btn btn-sm btn-danger">Hapus</button></form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr><td colspan="8" class="text-center text-muted" style="padding: 50px;">
+              <div style="font-size: 3rem; margin-bottom: 12px;">📭</div>
+              <h3 style="color: var(--text-secondary);">Belum ada listing</h3>
+              <p style="margin-top: 8px;">Kamu belum punya listing apapun. Yuk mulai jual!</p>
+              <a href="/seller/create" class="btn btn-primary mt-3">+ Buat Listing Pertama</a>
+            </td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card mt-4">
+    <div class="card-header"><h3>📖 Panduan Cepat Jualan</h3></div>
+    <div class="d-flex gap-2 flex-wrap">
+      <div class="flex-1" style="min-width: 180px;">
+        <div class="d-flex align-center gap-2 mb-2"><span style="background: var(--accent); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</span><strong>Buat Listing</strong></div>
+        <p class="text-muted" style="font-size: 0.85rem;">Klik "Buat Listing Baru", isi detail barang/jasa yang mau dijual.</p>
+      </div>
+      <div class="flex-1" style="min-width: 180px;">
+        <div class="d-flex align-center gap-2 mb-2"><span style="background: var(--accent); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</span><strong>Tunggu Verifikasi</strong></div>
+        <p class="text-muted" style="font-size: 0.85rem;">Admin akan review dalam 1x24 jam. Status berubah jadi "Aktif" otomatis tampil.</p>
+      </div>
+      <div class="flex-1" style="min-width: 180px;">
+        <div class="d-flex align-center gap-2 mb-2"><span style="background: var(--accent); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</span><strong>Dapatkan Pembeli</strong></div>
+        <p class="text-muted" style="font-size: 0.85rem;">Listing aktif akan muncul di halaman utama & marketplace — calon pembeli bisa langsung chat!</p>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,230 @@
+<%- include('partials/header') %>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-particle"></div><div class="hero-particle"></div>
+  <div class="hero-particle"></div><div class="hero-particle"></div>
+  <div class="hero-particle"></div><div class="hero-particle"></div>
+  <div class="hero-particle"></div><div class="hero-particle"></div>
+  <div class="hero-particle"></div><div class="hero-particle"></div>
+  
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      🏆 Premium Gaming Marketplace — Top Up Otomatis 24/7
+    </div>
+    
+    <h1>
+      <span class="gradient-text">Caesar Mumal Gaming</span><br>
+      <span class="highlight">Top Up Terlengkap & Termurah</span> 🚀
+    </h1>
+    
+    <p>Proses <strong>instan otomatis 24 jam!</strong> Pilih game favorit, masukkan ID, bayar — item langsung masuk ke akunmu <strong>detik itu juga</strong>. Ribuan gamer sudah puas! 🔥</p>
+    
+    <div class="hero-actions">
+      <a href="#games" class="btn btn-primary btn-xl">
+        <span class="icon">🎮</span> Mulai Top Up
+      </a>
+      <a href="#services" class="btn btn-secondary btn-xl">
+        <span class="icon">⚡</span> Joki & Akun
+      </a>
+    </div>
+    
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <h3>500K+</h3>
+        <p>✅ Transaksi Berhasil</p>
+      </div>
+      <div class="hero-stat">
+        <h3>24/7</h3>
+        <p>⚡ Sistem Otomatis</p>
+      </div>
+      <div class="hero-stat">
+        <h3>100%</h3>
+        <p>🔒 Aman & Terpercaya</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Layanan Premium -->
+<section class="section animate-on-scroll" id="services">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header-left">
+        <h2>⚡ Layanan Premium</h2>
+        <p class="subtitle">Solusi lengkap untuk semua kebutuhan gamingmu — top up, joki, hingga jual beli akun!</p>
+      </div>
+      <div class="section-header-right">
+        <a href="#games">🎮 Semua Game</a>
+      </div>
+    </div>
+    
+    <div class="service-grid">
+      <a href="/#games" class="service-card" style="border-color: rgba(99, 102, 241, 0.2);">
+        <div class="service-icon">🔄</div>
+        <h3>Top Up Game</h3>
+        <p>Pulsa diamond, UC, V-Bucks, dan mata uang digital game lainnya — harga termurah se-Indonesia, proses instan!</p>
+        <div class="service-tags">
+          <span>MLBB Diamond</span><span>FF Diamond</span><span>UC PUBG</span><span>VP Valorant</span><span>+ Semua Game</span>
+        </div>
+      </a>
+      <a href="/joki" class="service-card service-joki">
+        <div class="service-icon">🏆</div>
+        <h3>Jasa Joki Game</h3>
+        <p>Tim <strong>pro-player</strong> kami siap push rank, naikin MMR, selesain misi, event, battle pass — <strong>100% aman & terpercaya!</strong></p>
+        <div class="service-tags">
+          <span>MLBB Rank</span><span>FF Push</span><span>Valorant Rank</span><span>PUBG Push</span><span>+ Event & Quest</span>
+        </div>
+      </a>
+      <a href="/akun-game" class="service-card service-account">
+        <div class="service-icon">💎</div>
+        <h3>Jual Beli Akun Game</h3>
+        <p>Akun-akun <strong>premium terverifikasi</strong> — rank tinggi, skin limited season lama, akun mewah dengan garansi refund 7 hari!</p>
+        <div class="service-tags">
+          <span>Akun Rank Tinggi</span><span>Skin Limited</span><span>Akun Mewah</span><span>Murah & Aman</span><span>+ Garansi 7 Hari</span>
+        </div>
+      </a>
+      <a href="https://wa.me/6281234567890" target="_blank" class="service-card" style="border-color: rgba(245, 158, 11, 0.2); background: linear-gradient(160deg, var(--bg-card-solid), rgba(40, 30, 10, 0.4));">
+        <div class="service-icon">🎯</div>
+        <h3>Jasa Gaming Lainnya</h3>
+        <p>Top up saldo akun, joki event, joki battle pass, draft pick, coaching, dan berbagai jasa gaming lainnya. <strong>Chat aja!</strong></p>
+        <div class="service-tags">
+          <span>Top Up Saldo</span><span>Joki Event</span><span>Battle Pass</span><span>Coaching</span><span>+ Custom Request</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Flash Sale -->
+<% if (promoProducts && promoProducts.length > 0) { %>
+<section class="section animate-on-scroll" style="background: linear-gradient(180deg, transparent, var(--accent-soft), transparent);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header-left">
+        <h2>🔥 Flash Sale Spesial</h2>
+        <p class="subtitle">Promo terbatas — harga gocap, buruan checkout sebelum kehabisan!</p>
+      </div>
+      <div class="section-header-right">
+        <a href="#games">🎮 Semua Promo</a>
+      </div>
+    </div>
+    <div class="promo-grid">
+      <% promoProducts.forEach(function(p) { %>
+        <a href="/game/<%= p.game_slug %>" class="promo-card">
+          <div class="promo-badge">🔥 PROMO</div>
+          <img src="<%= p.game_logo || '' %>" alt="<%= p.game_name %>">
+          <div class="promo-info">
+            <div class="promo-game"><%= p.game_name %></div>
+            <h4><%= p.name %></h4>
+            <div class="d-flex align-center gap-1 flex-wrap">
+              <div class="promo-price">Rp <%= parseInt(p.price).toLocaleString('id-ID') %></div>
+              <% if (p.original_price) { %><div class="promo-original">Rp <%= parseInt(p.original_price).toLocaleString('id-ID') %></div><% } %>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- Member Marketplace -->
+<% if (memberListings && memberListings.length > 0) { %>
+<section class="section animate-on-scroll" id="marketplace" style="background: linear-gradient(180deg, var(--accent-soft), transparent, var(--accent-soft));">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header-left">
+        <h2>🛍️ Marketplace Member</h2>
+        <p class="subtitle">Jual beli antar member — akun, joki, top-up. Semua listing terverifikasi!</p>
+      </div>
+      <div class="section-header-right">
+        <a href="/seller/marketplace">Lihat Semua 🛒</a>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-3">
+      <% memberListings.forEach(function(l) { %>
+        <div class="card" style="flex: 1; min-width: 280px; max-width: 380px; display: flex; flex-direction: column; position: relative;">
+          <% if (l.featured) { %><div style="position: absolute; top: -1px; left: -1px; background: var(--gradient-accent); color: white; padding: 2px 10px; border-radius: 0 0 var(--radius-sm) 0; font-size: 0.6rem; font-weight: 700;">⭐ FEATURED</div><% } %>
+          <div class="d-flex align-center gap-3 mb-3">
+            <div style="width: 50px; height: 50px; background: var(--bg-input); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 1px solid var(--border); flex-shrink: 0;">
+              <%= l.category === 'akun' ? '💎' : l.category === 'joki' ? '🏆' : '🔄' %>
+            </div>
+            <div style="overflow: hidden;">
+              <h4 style="font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= l.title %></h4>
+              <span class="status-badge" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); font-size: 0.6rem; text-transform: capitalize;"><%= l.game_name %></span>
+              <span class="text-muted" style="font-size: 0.7rem;"> · <%= l.category %></span>
+            </div>
+          </div>
+          <div class="d-flex align-center justify-between" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 12px;">
+            <div>
+              <div class="text-success" style="font-size: 1.1rem; font-weight: 800;">Rp <%= parseInt(l.price).toLocaleString('id-ID') %></div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">👤 <%= l.username %></div>
+            </div>
+            <a href="/seller/listing/<%= l.id %>" class="btn btn-sm btn-outline">Detail</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- Games Grid -->
+<section class="section animate-on-scroll" id="games">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header-left">
+        <h2>🎮 Game Populer</h2>
+        <p class="subtitle">Top up game favoritmu sekarang — harga termurah, proses paling kilat se-Indonesia! 🇮🇩</p>
+      </div>
+      <div class="section-header-right">
+        <a href="/search">🔍 Cari Game</a>
+      </div>
+    </div>
+    <div class="game-grid">
+      <% if (games && games.length > 0) { %>
+        <% games.forEach(function(g) { %>
+          <a href="/game/<%= g.slug %>" class="game-card animate-on-scroll">
+            <img src="<%= g.logo || '' %>" alt="<%= g.name %>" class="game-card-logo">
+            <h3><%= g.name %></h3>
+            <span class="game-tag">Top Up Cepat ⚡</span>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 60px;">Belum ada game yang tersedia.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section animate-on-scroll text-center" style="padding: 80px 0; background: linear-gradient(180deg, transparent, var(--accent-soft), transparent);">
+  <div class="container">
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div style="font-size: 3.5rem; margin-bottom: 20px;">💬</div>
+      <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 12px;">Ada yang bisa kami bantu?</h2>
+      <p class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.7;">Tim <strong>Customer Service</strong> kami stand-by 24/7! Mau top up saldo, konsultasi joki, atau cek status pesanan? <strong>Chat aja langsung!</strong></p>
+      <div class="d-flex gap-3 justify-center flex-wrap">
+        <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success btn-lg">
+          <span class="icon">📱</span> Chat WhatsApp
+        </a>
+        <a href="/auth/register" class="btn btn-primary btn-lg">
+          <span class="icon">🚀</span> Daftar Sekarang
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+</script>
+
+<%- include('partials/footer') %>

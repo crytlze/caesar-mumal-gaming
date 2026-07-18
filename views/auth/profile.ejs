@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<div class="container" style="padding: 40px 20px;">
+  <div class="d-flex flex-wrap gap-3 mb-3">
+    <div class="card" style="flex: 1; min-width: 300px;">
+      <div class="card-header"><h3>Profil Saya</h3></div>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width: 80px; height: 80px; background: var(--bg-input); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 16px;">👤</div>
+        <h4><%= profile.username %></h4>
+        <p class="text-secondary"><%= profile.email %></p>
+      </div>
+      <div class="order-info-item text-center">
+        <div class="label">Saldo Anda</div>
+        <div class="value text-success" style="font-size: 1.5rem;">Rp <%= parseInt(profile.balance || 0).toLocaleString('id-ID') %></div>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <a href="/payment/topup" class="btn btn-success btn-sm" style="flex:1;">💳 Top Up Saldo</a>
+        <a href="/seller" class="btn btn-primary btn-sm" style="flex:1;">💰 Dashboard Jualan</a>
+      </div>
+      <div class="d-flex gap-2 mt-2">
+        <a href="/seller/marketplace" class="btn btn-outline btn-sm" style="flex:1;">🛍️ Marketplace</a>
+        <a href="/seller/create" class="btn btn-warning btn-sm" style="flex:1;">📝 Buat Listing</a>
+      </div>
+      <p class="text-muted text-center mt-2" style="font-size: 0.8rem;">*Untuk top up saldo, hubungi Admin via WhatsApp.</p>
+    </div>
+    <div class="card" style="flex: 2; min-width: 300px;">
+      <div class="card-header"><h3>Riwayat Transaksi</h3></div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead><tr><th>ID Pesanan</th><th>Game & Item</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>
+            <% if (orders && orders.length > 0) { %>
+              <% orders.forEach(function(o) { %>
+                <tr>
+                  <td><strong><%= o.order_id %></strong><br><small class="text-muted"><%= new Date(o.created_at).toLocaleDateString('id-ID') %></small></td>
+                  <td>
+                    <div class="d-flex align-center gap-1">
+                      <img src="<%= o.game_logo %>" alt="" style="width: 24px; height: 24px; border-radius: 4px;">
+                      <div><div style="font-size: 0.8rem; color: var(--text-muted);"><%= o.game_name %></div><div style="font-weight: 600;"><%= o.product_name %></div></div>
+                    </div>
+                  </td>
+                  <td class="text-success" style="font-weight: 600;">Rp <%= parseInt(o.total_price).toLocaleString('id-ID') %></td>
+                  <td><span class="status-badge status-<%= o.status %>"><%= o.status %></span></td>
+                  <td><a href="/order/<%= o.order_id %>" class="btn btn-sm btn-outline">Detail</a></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="5" class="text-center text-muted" style="padding: 40px;">Belum ada transaksi.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

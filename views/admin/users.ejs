@@ -1,0 +1,88 @@
+<%- include('../partials/layout', { body: `
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <h3>Menu Admin</h3>
+    <a href="/admin">📊 Dashboard</a>
+    <a href="/admin/orders">🛒 Kelola Order</a>
+    <a href="/admin/games">🎮 Kelola Game</a>
+    <a href="/admin/products">📦 Kelola Produk</a>
+    <a href="/admin/listings">🛍️ Listing Member</a>
+    <a href="/admin/users" class="active">👥 Kelola User</a>
+  </aside>
+  
+  <div class="admin-content">
+    <div class="d-flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1>Kelola User</h1>
+    </div>
+    
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Saldo</th>
+              <th>Total Transaksi</th>
+              <th>Tanggal Daftar</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr>
+                <td>${u.id}</td>
+                <td><strong>${u.username}</strong></td>
+                <td>${u.email}</td>
+                <td>
+                  <span class="status-badge" style="background: ${u.role === 'admin' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-input)'}; color: ${u.role === 'admin' ? 'var(--accent)' : 'var(--text-secondary)'};">
+                    ${u.role}
+                  </span>
+                </td>
+                <td class="text-success" style="font-weight: 700;">Rp ${parseInt(u.balance).toLocaleString('id-ID')}</td>
+                <td>${u.order_count} transaksi</td>
+                <td class="text-muted" style="font-size: 0.8rem;">${new Date(u.created_at).toLocaleDateString('id-ID')}</td>
+                <td>
+                  <button onclick="topupUser('${u.id}', '${u.username}')" class="btn btn-sm btn-outline">Top Up Saldo</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Topup -->
+<div class="modal-overlay" id="modalTopup">
+  <div class="modal">
+    <div class="d-flex" style="justify-content: space-between; margin-bottom: 20px;">
+      <h3>Top Up Saldo User</h3>
+      <button onclick="document.getElementById('modalTopup').classList.remove('active')" class="btn btn-sm btn-outline">✕</button>
+    </div>
+    
+    <form action="" method="POST" id="formTopup">
+      <p class="mb-3">Tambah saldo untuk user: <strong id="topup_username" class="text-accent"></strong></p>
+      
+      <div class="form-group">
+        <label>Nominal Top Up (Rp)</label>
+        <input type="number" name="amount" class="form-control" required min="1000" step="1000">
+      </div>
+      
+      <button type="submit" class="btn btn-success btn-block">Tambahkan Saldo</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function topupUser(id, username) {
+    document.getElementById('formTopup').action = '/admin/users/topup/' + id;
+    document.getElementById('topup_username').innerText = username;
+    
+    document.getElementById('modalTopup').classList.add('active');
+  }
+</script>
+` }) %>

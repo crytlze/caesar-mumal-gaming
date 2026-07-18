@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<div class="container" style="padding: 40px 0;">
+  <div class="section-header">
+    <div class="section-header-left">
+      <h2>🔍 Hasil Pencarian: "<%= typeof query !== 'undefined' ? query : '' %>"</h2>
+      <p class="subtitle"><%= games && games.length > 0 ? games.length + ' game ditemukan' : 'Tidak ada hasil' %></p>
+    </div>
+    <div class="section-header-right"><a href="/#games">🎮 Semua Game</a></div>
+  </div>
+  <% if (games && games.length > 0) { %>
+    <div class="game-grid">
+      <% games.forEach(function(g) { %>
+        <a href="/game/<%= g.slug %>" class="game-card animate-on-scroll">
+          <img src="<%= g.logo || '' %>" alt="<%= g.name %>" class="game-card-logo">
+          <h3><%= g.name %></h3>
+          <span class="game-tag">Top Up ⚡</span>
+        </a>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card text-center" style="padding: 80px;">
+      <div style="font-size: 4rem; margin-bottom: 16px;">🔍</div>
+      <h3 class="text-secondary">Game tidak ditemukan</h3>
+      <p class="text-muted mt-2">Coba cari dengan kata kunci lain.</p>
+      <a href="/#games" class="btn btn-primary mt-3">Lihat Semua Game</a>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>
