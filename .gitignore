@@ -1,0 +1,15 @@
+node_modules/
+data/
+.env
+public/uploads/listings/
+*.log
+.DS_Store
+Thumbs.db
+resp*.txt
+response*.txt
+vercel-test.html
+*.html
+!views/**/*.html
+!public/**/*.html
+-p/
+headers.txt
