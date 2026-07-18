@@ -2,17 +2,14 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const isVercel = process.env.VERCEL === '1';
-const db = isVercel
-  ? new Database(':memory:')
-  : new Database(path.join(__dirname, '..', '..', 'data', 'ciboy.db'));
+const dbDir = path.join(__dirname, '..', '..', 'data');
+if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
-if (!isVercel) {
-  const dir = path.join(__dirname, '..', '..', 'data');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  try { db.pragma('journal_mode = WAL'); } catch(e) {}
-  db.pragma('foreign_keys = ON');
-}
+const dbPath = path.join(dbDir, 'ciboy.db');
+const db = new Database(dbPath);
+
+try { db.pragma('journal_mode = WAL'); } catch(e) {}
+db.pragma('foreign_keys = ON');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, role TEXT DEFAULT 'user', balance REAL DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
@@ -29,16 +26,9 @@ if (db.prepare('SELECT COUNT(*) as c FROM users').get().c === 0) {
   db.prepare("INSERT INTO users (username, email, password, role) VALUES (?,?,?,?)").run('admin','admin@cmgm.com',bcrypt.hashSync('admin123',10),'admin');
   db.prepare("INSERT INTO users (username, email, password, role, balance) VALUES (?,?,?,?,?)").run('player1','player1@gmail.com',bcrypt.hashSync('user123',10),'user',500000);
   const ig = db.prepare('INSERT INTO games (name,slug,description,logo,id_label,id_placeholder,server_label,server_placeholder,has_server,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)');
-  [['Mobile Legends','mobile-legends','Top Up MLBB.', '/img/games/mlbb.png','User ID','-','Zone ID','-',1,1],
-   ['Free Fire','free-fire','Top Up FF.',      '/img/games/freefire.svg','Player ID','-','','',0,2],
-   ['PUBG Mobile','pubg-mobile','UC PUBG.',    '/img/games/pubg.webp','Player ID','-','','',0,3],
-   ['Valorant','valorant','VP Valorant.',      '/img/games/valorant.svg','Riot ID','-','','',0,4],
-   ['Genshin Impact','genshin-impact','Genesis Crystal.', '/img/games/genshin.svg','UID','-','Server','Asia',1,5]
-  ].forEach(g => ig.run(...g));
+  [['Mobile Legends','mobile-legends','Top Up MLBB.', '/img/games/mlbb.png','User ID','-','Zone ID','-',1,1],['Free Fire','free-fire','Top Up FF.', '/img/games/freefire.svg','Player ID','-','','',0,2],['PUBG Mobile','pubg-mobile','UC PUBG.', '/img/games/pubg.webp','Player ID','-','','',0,3],['Valorant','valorant','VP Valorant.', '/img/games/valorant.svg','Riot ID','-','','',0,4],['Genshin Impact','genshin-impact','Genesis Crystal.', '/img/games/genshin.svg','UID','-','Server','Asia',1,5]].forEach(g => ig.run(...g));
   const ip = db.prepare('INSERT INTO products (game_id, name, price, original_price, is_promo, sort_order) VALUES (?,?,?,?,?,?)');
-  ip.run(1,'86 Diamonds',19500,22000,1,1); ip.run(1,'172 Diamonds',38500,null,0,2);
-  ip.run(2,'140 Diamonds',18500,null,0,1); ip.run(2,'355 Diamonds',46500,50000,1,2);
-  ip.run(4,'125 VP',15000,null,0,1); ip.run(4,'420 VP',49000,50000,1,2);
+  ip.run(1,'86 Diamonds',19500,22000,1,1); ip.run(1,'172 Diamonds',38500,null,0,2); ip.run(2,'140 Diamonds',18500,null,0,1); ip.run(2,'355 Diamonds',46500,50000,1,2); ip.run(4,'125 VP',15000,null,0,1); ip.run(4,'420 VP',49000,50000,1,2);
 }
 
 module.exports = db;
