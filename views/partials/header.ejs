@@ -40,6 +40,7 @@
         <li><a href="/akun-game">💎 Akun</a></li>
         <li><a href="/seller/marketplace">🛍️ Marketplace</a></li>
         <li><a href="/#games">Games</a></li>
+        <li style="display:none;" id="installMenuItem"><a href="#" onclick="installPWAFromMenu()" style="color:var(--success);font-weight:700;">📱 Install App</a></li>
         <% if (user) { %>
           <% if (user.role === 'admin') { %>
             <li><a href="/admin">Dashboard Admin</a></li>

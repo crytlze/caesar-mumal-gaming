@@ -49,6 +49,19 @@
       });
     }
 
+    // Also exposed for menu install button
+    function installPWAFromMenu() {
+      installPWA();
+      document.getElementById('navMenu')?.classList.remove('active');
+      return false;
+    }
+
+    // Show install button in menu when available
+    window.addEventListener('beforeinstallprompt', (e) => {
+      const menuItem = document.getElementById('installMenuItem');
+      if (menuItem) menuItem.style.display = 'list-item';
+    });
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
