@@ -4,7 +4,7 @@ const db = require('../models/database');
 
 // Dynamic Sitemap XML
 router.get('/sitemap.xml', (req, res) => {
-  const baseUrl = 'https://caesar-mumal-gaming-production.up.railway.app';
+  const baseUrl = 'https://cmgm-fyb7i8k87-krizsaiser-6223s-projects.vercel.app';
   
   const games = db.prepare('SELECT slug, created_at FROM games WHERE is_active = 1').all();
   const listings = db.prepare("SELECT id, created_at FROM seller_listings WHERE status = 'approved'").all();
@@ -50,7 +50,7 @@ router.get('/robots.txt', (req, res) => {
   res.header('Content-Type', 'text/plain');
   res.send(`User-agent: *
 Allow: /
-Sitemap: https://caesar-mumal-gaming-production.up.railway.app/sitemap.xml
+Sitemap: https://cmgm-fyb7i8k87-krizsaiser-6223s-projects.vercel.app/sitemap.xml
 `);
 });
 

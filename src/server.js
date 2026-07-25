@@ -62,7 +62,7 @@ app.use('/notifications', notifRoutes);
 
 // Sitemap and robots at root level
 app.get('/sitemap.xml', (req, res) => {
-  const baseUrl = 'https://caesar-mumal-gaming-production.up.railway.app';
+  const baseUrl = 'https://cmgm-fyb7i8k87-krizsaiser-6223s-projects.vercel.app';
   const games = require('./models/database').prepare('SELECT slug, created_at FROM games WHERE is_active = 1').all();
   const listings = require('./models/database').prepare("SELECT id, created_at FROM seller_listings WHERE status = 'approved'").all();
   
@@ -80,7 +80,7 @@ app.get('/sitemap.xml', (req, res) => {
   res.header('Content-Type', 'application/xml').send(xml);
 });
 app.get('/robots.txt', (req, res) => {
-  res.header('Content-Type', 'text/plain').send(`User-agent: *\nAllow: /\nSitemap: https://caesar-mumal-gaming-production.up.railway.app/sitemap.xml\n`);
+  res.header('Content-Type', 'text/plain').send(`User-agent: *\nAllow: /\nSitemap: https://cmgm-fyb7i8k87-krizsaiser-6223s-projects.vercel.app/sitemap.xml\n`);
 });
 
 // Notif count middleware for navbar
