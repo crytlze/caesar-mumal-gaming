@@ -50,6 +50,11 @@
     </div>
 
     <div class="d-flex gap-2">
+      <% if (user) { %>
+        <button onclick="toggleWishlist(<%= listing.id %>)" class="btn <%= isInWishlist ? 'btn-danger' : 'btn-outline' %> btn-lg" id="wishlistBtn" style="min-width: 50px; font-size: 1.3rem;">
+          <%= isInWishlist ? '❤️' : '🤍' %>
+        </button>
+      <% } %>
       <a href="https://wa.me/6281234567890?text=Halo%2C%20saya%20tertarik%20dengan%20<%= encodeURIComponent(listing.title) %>%20milik%20<%= encodeURIComponent(listing.username) %>%20di%20Caesar%20Mumal%20Gaming" target="_blank" class="btn btn-success btn-lg flex-1"><span class="icon">📱</span> Chat Penjual</a>
       <a href="/seller/marketplace" class="btn btn-outline btn-lg">Kembali</a>
     </div>
@@ -124,5 +129,22 @@
   }); }
   function resetStar() { hoverStar(selectedStar); }
   function setStar(val) { selectedStar = val; document.querySelector('input[name="rating"][value="'+val+'"]').checked = true; hoverStar(val); }
+  function toggleWishlist(listingId) {
+    fetch('/seller/wishlist/toggle/' + listingId, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          const btn = document.getElementById('wishlistBtn');
+          if (d.inWishlist) {
+            btn.innerHTML = '❤️';
+            btn.className = 'btn btn-danger btn-lg';
+          } else {
+            btn.innerHTML = '🤍';
+            btn.className = 'btn btn-outline btn-lg';
+          }
+        }
+      })
+      .catch(() => {});
+  }
 </script>
 <%- include('partials/footer') %>

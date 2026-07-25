@@ -46,6 +46,8 @@
             <li><a href="/admin">Dashboard Admin</a></li>
           <% } %>
           <li><a href="/seller" title="Seller Dashboard">💰 Jualan</a></li>
+          <li><a href="/wishlist" title="Wishlist">❤️ <% if (typeof wishlistCount !== 'undefined' && wishlistCount > 0) { %><span class="notif-badge"><%= wishlistCount %></span><% } %></a></li>
+          <li><a href="/notifications" title="Notifikasi">🔔 <% if (typeof unreadNotif !== 'undefined' && unreadNotif > 0) { %><span class="notif-badge"><%= unreadNotif %></span><% } %></a></li>
           <li><a href="/payment/topup" class="btn-nav" style="background: var(--success);">💳 Top Up</a></li>
           <li><a href="/auth/profile" class="nav-balance">Rp <%= parseInt(user.balance || 0).toLocaleString('id-ID') %></a></li>
           <li><a href="/auth/logout" style="color: var(--danger);">Logout</a></li>

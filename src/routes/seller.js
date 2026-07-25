@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const db = require('../models/database');
 const { isAuth } = require('../middleware/auth');
+const { createNotification } = require('./notif');
 
 // ========================
 // FILE UPLOAD CONFIG
@@ -33,8 +34,16 @@ const upload = multer({
 // SELLER DASHBOARD
 // ========================
 router.get('/', isAuth, (req, res) => {
-  const listings = db.prepare(`SELECT * FROM seller_listings WHERE user_id = ? ORDER BY created_at DESC`).all(req.session.user.id);
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
+  const total = db.prepare('SELECT COUNT(*) as c FROM seller_listings WHERE user_id = ?').all(req.session.user.id);
+  const totalCount = total.length > 0 && total[0] ? total[0].c : (db.prepare('SELECT COUNT(*) as c FROM seller_listings WHERE user_id = ?').get(req.session.user.id)?.c || 0);
+  const totalPages = Math.ceil(totalCount / limit);
+  
+  const listings = db.prepare(`SELECT * FROM seller_listings WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(req.session.user.id, limit, offset);
+  
   // Get average rating for each listing
   const ratings = db.prepare(`
     SELECT listing_id, ROUND(AVG(rating), 1) as avg_rating, COUNT(*) as total_reviews
@@ -51,7 +60,7 @@ router.get('/', isAuth, (req, res) => {
     sold: db.prepare("SELECT COUNT(*) as c FROM seller_listings WHERE user_id = ? AND status = 'sold'").get(req.session.user.id).c
   };
 
-  res.render('seller/dashboard', { title: 'Seller Dashboard - Caesar Mumal Gaming', listings, stats, ratingMap });
+  res.render('seller/dashboard', { title: 'Seller Dashboard - Caesar Mumal Gaming', listings, stats, ratingMap, pagination: { page, totalPages, total: totalCount, limit } });
 });
 
 // ========================
@@ -85,6 +94,13 @@ router.post('/create', isAuth, upload.single('image'), (req, res) => {
       original_price ? parseFloat(original_price) : null,
       imageUrl, contact || req.session.user.username
     );
+    
+    // Notify admins
+    const admins = db.prepare("SELECT id FROM users WHERE role = 'admin'").all();
+    admins.forEach(a => {
+      createNotification(a.id, 'listing_baru', 'Listing Baru Menunggu Verifikasi', `${req.session.user.username} membuat listing: ${title}`, '/admin/listings');
+    });
+    
     req.flash('success', 'Listing berhasil dibuat! Menunggu verifikasi admin.');
   } catch (err) {
     req.flash('error', 'Gagal membuat listing: ' + err.message);
@@ -138,7 +154,7 @@ router.post('/delete/:id', isAuth, (req, res) => {
 // ========================
 router.post('/review/:listingId', isAuth, (req, res) => {
   const { rating, comment } = req.body;
-  const listing = db.prepare('SELECT id, user_id FROM seller_listings WHERE id = ? AND status = ?').get(req.params.listingId, 'approved');
+  const listing = db.prepare('SELECT id, user_id, title FROM seller_listings WHERE id = ? AND status = ?').get(req.params.listingId, 'approved');
   if (!listing) { req.flash('error', 'Listing tidak ditemukan'); return res.redirect('/seller/marketplace'); }
   if (listing.user_id === req.session.user.id) { req.flash('error', 'Kamu tidak bisa mereview listingmu sendiri'); return res.redirect('/seller/listing/' + req.params.listingId); }
 
@@ -146,25 +162,54 @@ router.post('/review/:listingId', isAuth, (req, res) => {
   if (existing) { req.flash('error', 'Kamu sudah memberikan review untuk listing ini'); return res.redirect('/seller/listing/' + req.params.listingId); }
 
   db.prepare('INSERT INTO reviews (listing_id, user_id, rating, comment) VALUES (?, ?, ?, ?)').run(req.params.listingId, req.session.user.id, parseInt(rating) || 5, comment || '');
+  
+  // Notify seller
+  createNotification(listing.user_id, 'review_baru', 'Review Baru!', `${req.session.user.username} memberi rating ${rating}⭐ pada listing "${listing.title}"`, '/seller/listing/' + req.params.listingId);
+  
   req.flash('success', 'Review berhasil dikirim! ⭐');
   res.redirect('/seller/listing/' + req.params.listingId);
 });
 
 // ========================
-// PUBLIC: MARKETPLACE
+// PUBLIC: MARKETPLACE (with Pagination)
 // ========================
 router.get('/marketplace', (req, res) => {
   const category = req.query.category || '';
   const search = req.query.search || '';
+  const page = parseInt(req.query.page) || 1;
+  const limit = 12;
+  const offset = (page - 1) * limit;
+  
+  let countQuery = "SELECT COUNT(*) as c FROM seller_listings sl JOIN users u ON sl.user_id = u.id WHERE sl.status = 'approved'";
   let query = "SELECT sl.*, u.username FROM seller_listings sl JOIN users u ON sl.user_id = u.id WHERE sl.status = 'approved'";
+  const countParams = [];
   const params = [];
 
-  if (category) { query += ' AND sl.category = ?'; params.push(category); }
-  if (search) { query += ' AND (sl.title LIKE ? OR sl.game_name LIKE ? OR sl.description LIKE ?)'; params.push(`%${search}%`, `%${search}%`, `%${search}%`); }
-  query += ' ORDER BY sl.featured DESC, sl.created_at DESC';
+  if (category) { query += ' AND sl.category = ?'; countQuery += ' AND sl.category = ?'; params.push(category); countParams.push(category); }
+  if (search) { query += ' AND (sl.title LIKE ? OR sl.game_name LIKE ? OR sl.description LIKE ?)'; countQuery += ' AND (sl.title LIKE ? OR sl.game_name LIKE ? OR sl.description LIKE ?)'; params.push(`%${search}%`, `%${search}%`, `%${search}%`); countParams.push(`%${search}%`, `%${search}%`, `%${search}%`); }
+  query += ' ORDER BY sl.featured DESC, sl.created_at DESC LIMIT ? OFFSET ?';
+  params.push(limit, offset);
 
+  const total = (db.prepare(countQuery).get(...countParams) || { c: 0 }).c;
+  const totalPages = Math.ceil(total / limit);
+  
   const listings = db.prepare(query).all(...params);
-  res.render('marketplace', { title: 'Marketplace Member - Caesar Mumal Gaming', listings, selectedCategory: category, searchQuery: search });
+  
+  // Check wishlist for logged in user
+  let wishlistIds = [];
+  if (req.session.user) {
+    const wl = db.prepare('SELECT listing_id FROM wishlist WHERE user_id = ?').all(req.session.user.id);
+    wishlistIds = wl.map(w => w.listing_id);
+  }
+  
+  res.render('marketplace', {
+    title: 'Marketplace Member - Caesar Mumal Gaming',
+    listings,
+    selectedCategory: category,
+    searchQuery: search,
+    pagination: { page, totalPages, total, limit },
+    wishlistIds
+  });
 });
 
 // ========================
@@ -188,11 +233,25 @@ router.get('/listing/:id', (req, res) => {
   `).get(req.params.id);
 
   const userReview = req.session.user ? db.prepare('SELECT id FROM reviews WHERE listing_id = ? AND user_id = ?').get(req.params.id, req.session.user.id) : null;
+  
+  const isInWishlist = req.session.user ? !!db.prepare('SELECT id FROM wishlist WHERE user_id = ? AND listing_id = ?').get(req.session.user.id, req.params.id) : false;
 
   res.render('listing-detail', {
     title: `${listing.title} - Caesar Mumal Gaming`,
-    listing, reviews, ratingStats, userReview
+    listing, reviews, ratingStats, userReview, isInWishlist
   });
+});
+
+// Wishlist toggle from listing detail
+router.post('/wishlist/toggle/:id', isAuth, (req, res) => {
+  const existing = db.prepare('SELECT id FROM wishlist WHERE user_id = ? AND listing_id = ?').get(req.session.user.id, req.params.id);
+  if (existing) {
+    db.prepare('DELETE FROM wishlist WHERE id = ?').run(existing.id);
+    res.json({ success: true, inWishlist: false, message: 'Dihapus dari wishlist' });
+  } else {
+    db.prepare('INSERT INTO wishlist (user_id, listing_id) VALUES (?, ?)').run(req.session.user.id, req.params.id);
+    res.json({ success: true, inWishlist: true, message: 'Ditambahkan ke wishlist ❤️' });
+  }
 });
 
 module.exports = router;

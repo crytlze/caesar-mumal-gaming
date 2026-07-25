@@ -65,9 +65,7 @@
                     <% } else if (l.status === 'rejected') { %><span class="status-badge status-failed">❌ Ditolak</span>
                     <% } else if (l.status === 'sold') { %><span class="status-badge" style="background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid rgba(99,102,241,0.15);">💰 Terjual</span>
                     <% } %>
-                    <div style="font-size: 0.7rem; margin-top: 4px;">
-                      <% if (l.featured) { %><span style="color: var(--gold);">⭐ Featured</span><% } %>
-                    </div>
+                    <% if (l.featured) { %><div style="font-size: 0.7rem; margin-top: 4px; color: var(--gold);">⭐ Featured</div><% } %>
                   </td>
                   <td>
                     <div class="d-flex gap-1" style="flex-wrap: wrap;">
@@ -98,6 +96,18 @@
           </tbody>
         </table>
       </div>
+      
+      <!-- Pagination -->
+      <% if (pagination && pagination.totalPages > 1) { %>
+        <div class="d-flex justify-center" style="padding: 20px;">
+          <div class="pagination">
+            <% if (pagination.page > 1) { %><a href="?page=<%= pagination.page - 1 %><%= selectedStatus ? '&status=' + selectedStatus : '' %>" class="btn btn-outline btn-sm">← Sebelumnya</a><% } %>
+            <% for (let p = 1; p <= pagination.totalPages; p++) { %><a href="?page=<%= p %><%= selectedStatus ? '&status=' + selectedStatus : '' %>" class="btn <%= p === pagination.page ? 'btn-primary' : 'btn-outline' %> btn-sm"><%= p %></a><% } %>
+            <% if (pagination.page < pagination.totalPages) { %><a href="?page=<%= pagination.page + 1 %><%= selectedStatus ? '&status=' + selectedStatus : '' %>" class="btn btn-outline btn-sm">Selanjutnya →</a><% } %>
+            <span class="text-muted" style="font-size: 0.85rem; margin-left: 12px;">Total <%= pagination.total %></span>
+          </div>
+        </div>
+      <% } %>
     </div>
   </div>
 </div>

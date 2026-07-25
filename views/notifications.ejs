@@ -1,0 +1,65 @@
+<%- include('partials/header') %>
+<div class="container" style="padding: 40px 0; max-width: 700px;">
+  <div class="section-header">
+    <div class="section-header-left">
+      <h2>🔔 Notifikasi</h2>
+      <p class="subtitle">Semua aktivitas dan update pesananmu</p>
+    </div>
+    <div class="section-header-right">
+      <% if (notifications && notifications.length > 0) { %>
+        <form action="/notifications/read-all" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-outline">✅ Semua Dibaca</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (notifications && notifications.length > 0) { %>
+    <div class="d-flex flex-column gap-2">
+      <% notifications.forEach(function(n) { %>
+        <div class="card" style="<%= n.is_read ? 'opacity: 0.7;' : 'border-left: 3px solid var(--accent);' %> padding: 16px; <%= n.is_read ? '' : 'background: var(--accent-soft);' %>" onclick="<%= n.link ? 'window.location=\''+n.link+'\'' : '' %>" style="cursor: <%= n.link ? 'pointer' : 'default' %>;">
+          <div class="d-flex align-center justify-between">
+            <div style="flex: 1;">
+              <div class="d-flex align-center gap-2">
+                <strong style="font-size: 0.95rem;"><%= n.title %></strong>
+                <% if (!n.is_read) { %><span class="status-badge" style="background: var(--accent); color: white; font-size: 0.6rem; padding: 2px 8px;">Baru</span><% } %>
+              </div>
+              <% if (n.message) { %><p class="text-muted mt-1" style="font-size: 0.85rem;"><%= n.message %></p><% } %>
+              <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                <%= new Date(n.created_at).toLocaleString('id-ID', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %>
+              </div>
+            </div>
+            <% if (!n.is_read) { %>
+              <form action="/notifications/read/<%= n.id %>" method="POST" style="display:inline;" onclick="event.stopPropagation();">
+                <button type="submit" class="btn btn-sm btn-outline" style="font-size: 0.7rem;">Baca</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    
+    <!-- Pagination -->
+    <% if (pagination && pagination.totalPages > 1) { %>
+      <div class="pagination mt-4">
+        <% if (pagination.page > 1) { %>
+          <a href="?page=<%= pagination.page - 1 %>" class="btn btn-outline btn-sm">← Sebelumnya</a>
+        <% } %>
+        <% for (let p = 1; p <= pagination.totalPages; p++) { %>
+          <a href="?page=<%= p %>" class="btn <%= p === pagination.page ? 'btn-primary' : 'btn-outline' %> btn-sm"><%= p %></a>
+        <% } %>
+        <% if (pagination.page < pagination.totalPages) { %>
+          <a href="?page=<%= pagination.page + 1 %>" class="btn btn-outline btn-sm">Selanjutnya →</a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } else { %>
+    <div class="card text-center" style="padding: 60px;">
+      <div style="font-size: 4rem; margin-bottom: 16px;">🔕</div>
+      <h3 style="color: var(--text-secondary);">Belum ada notifikasi</h3>
+      <p class="text-muted mt-2">Notifikasi tentang pesanan, review, dan aktivitas lainnya akan muncul di sini.</p>
+      <a href="/" class="btn btn-primary btn-lg mt-3">🏠 Beranda</a>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

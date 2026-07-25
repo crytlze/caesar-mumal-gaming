@@ -20,8 +20,25 @@
         <a href="/seller/marketplace" class="btn btn-outline btn-sm" style="flex:1;">🛍️ Marketplace</a>
         <a href="/seller/create" class="btn btn-warning btn-sm" style="flex:1;">📝 Buat Listing</a>
       </div>
-      <p class="text-muted text-center mt-2" style="font-size: 0.8rem;">*Untuk top up saldo, hubungi Admin via WhatsApp.</p>
+
+      <!-- Change Password -->
+      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+        <h4 style="font-size: 0.95rem; margin-bottom: 16px;">🔑 Ubah Password</h4>
+        <form action="/auth/change-password" method="POST">
+          <div class="form-group">
+            <input type="password" name="current_password" class="form-control" placeholder="Password saat ini" required>
+          </div>
+          <div class="form-group">
+            <input type="password" name="new_password" class="form-control" placeholder="Password baru (min 6 karakter)" minlength="6" required>
+          </div>
+          <div class="form-group">
+            <input type="password" name="confirm_password" class="form-control" placeholder="Konfirmasi password baru" minlength="6" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block btn-sm">🔄 Ganti Password</button>
+        </form>
+      </div>
     </div>
+    
     <div class="card" style="flex: 2; min-width: 300px;">
       <div class="card-header"><h3>Riwayat Transaksi</h3></div>
       <div class="table-responsive">

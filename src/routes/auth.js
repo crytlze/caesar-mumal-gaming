@@ -87,6 +87,14 @@ router.get('/logout', isAuth, (req, res) => {
 // Profile
 router.get('/profile', isAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  
+  const page = parseInt(req.query.page) || 1;
+  const limit = 15;
+  const offset = (page - 1) * limit;
+  
+  const total = db.prepare('SELECT COUNT(*) as c FROM orders WHERE user_id = ?').get(req.session.user.id).c;
+  const totalPages = Math.ceil(total / limit);
+  
   const orders = db.prepare(`
     SELECT o.*, g.name as game_name, g.logo as game_logo, p.name as product_name
     FROM orders o
@@ -94,10 +102,10 @@ router.get('/profile', isAuth, (req, res) => {
     JOIN products p ON o.product_id = p.id
     WHERE o.user_id = ?
     ORDER BY o.created_at DESC
-    LIMIT 20
-  `).all(req.session.user.id);
+    LIMIT ? OFFSET ?
+  `).all(req.session.user.id, limit, offset);
 
-  res.render('auth/profile', { title: 'Profil Saya - Caesar Mumal Gaming', profile: user, orders });
+  res.render('auth/profile', { title: 'Profil Saya - Caesar Mumal Gaming', profile: user, orders, pagination: { page, totalPages, total, limit } });
 });
 
 module.exports = router;

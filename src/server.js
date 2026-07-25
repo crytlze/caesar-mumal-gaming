@@ -45,13 +45,70 @@ const orderRoutes = require('./routes/order');
 const adminRoutes = require('./routes/admin');
 const sellerRoutes = require('./routes/seller');
 const paymentRoutes = require('./routes/payment');
+const sitemapRoutes = require('./routes/sitemap');
+const wishlistRoutes = require('./routes/wishlist');
+const forgotRoutes = require('./routes/forgot');
+const { router: notifRoutes } = require('./routes/notif');
 
 app.use('/', homeRoutes);
-app.use('/auth', authRoutes);
+app.use('/auth', [authRoutes, forgotRoutes]);
 app.use('/order', orderRoutes);
 app.use('/admin', adminRoutes);
 app.use('/seller', sellerRoutes);
 app.use('/payment', paymentRoutes);
+app.use('/sitemap', sitemapRoutes);
+app.use('/wishlist', wishlistRoutes);
+app.use('/notifications', notifRoutes);
+
+// Sitemap and robots at root level
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = 'https://caesar-mumal-gaming-production.up.railway.app';
+  const games = require('./models/database').prepare('SELECT slug, created_at FROM games WHERE is_active = 1').all();
+  const listings = require('./models/database').prepare("SELECT id, created_at FROM seller_listings WHERE status = 'approved'").all();
+  
+  let xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+  const pages = [
+    { loc: '', priority: '1.0', changefreq: 'daily' },
+    { loc: '/joki', priority: '0.8', changefreq: 'weekly' },
+    { loc: '/akun-game', priority: '0.8', changefreq: 'weekly' },
+    { loc: '/seller/marketplace', priority: '0.9', changefreq: 'hourly' },
+  ];
+  pages.forEach(p => { xml += `<url><loc>${baseUrl}${p.loc}</loc><priority>${p.priority}</priority><changefreq>${p.changefreq}</changefreq></url>`; });
+  games.forEach(g => { const d = new Date(g.created_at || Date.now()).toISOString(); xml += `<url><loc>${baseUrl}/game/${g.slug}</loc><priority>0.9</priority><changefreq>daily</changefreq><lastmod>${d}</lastmod></url>`; });
+  listings.forEach(l => { const d = new Date(l.created_at || Date.now()).toISOString(); xml += `<url><loc>${baseUrl}/seller/listing/${l.id}</loc><priority>0.7</priority><changefreq>weekly</changefreq><lastmod>${d}</lastmod></url>`; });
+  xml += '</urlset>';
+  res.header('Content-Type', 'application/xml').send(xml);
+});
+app.get('/robots.txt', (req, res) => {
+  res.header('Content-Type', 'text/plain').send(`User-agent: *\nAllow: /\nSitemap: https://caesar-mumal-gaming-production.up.railway.app/sitemap.xml\n`);
+});
+
+// Notif count middleware for navbar
+app.use((req, res, next) => {
+  if (req.session.user) {
+    try {
+      const db = require('./models/database');
+      res.locals.unreadNotif = db.prepare('SELECT COUNT(*) as c FROM notifications WHERE user_id = ? AND is_read = 0').get(req.session.user.id).c;
+    } catch(e) { res.locals.unreadNotif = 0; }
+  } else {
+    res.locals.unreadNotif = 0;
+  }
+  res.locals.wishlistCount = 0;
+  if (req.session.user) {
+    try {
+      const db = require('./models/database');
+      res.locals.wishlistCount = db.prepare('SELECT COUNT(*) as c FROM wishlist WHERE user_id = ?').get(req.session.user.id).c;
+    } catch(e) { res.locals.wishlistCount = 0; }
+  }
+  next();
+});
+
+// Add notif creation to req for routes
+const { createNotification } = require('./routes/notif');
+app.use((req, res, next) => {
+  req.createNotification = createNotification;
+  next();
+});
 
 // 404
 app.use((req, res) => {

@@ -56,6 +56,17 @@
           </tbody>
         </table>
       </div>
+      
+      <!-- Pagination -->
+      ${pagination && pagination.totalPages > 1 ? `
+      <div class="d-flex justify-center" style="padding: 20px;">
+        <div class="pagination">
+          ${pagination.page > 1 ? '<a href="?page=' + (pagination.page - 1) + '" class="btn btn-outline btn-sm">← Sebelumnya</a>' : ''}
+          ${Array.from({length: pagination.totalPages}, (_, i) => i + 1).map(p => '<a href="?page=' + p + '" class="btn ' + (p === pagination.page ? 'btn-primary' : 'btn-outline') + ' btn-sm">' + p + '</a>').join('')}
+          ${pagination.page < pagination.totalPages ? '<a href="?page=' + (pagination.page + 1) + '" class="btn btn-outline btn-sm">Selanjutnya →</a>' : ''}
+          <span class="text-muted" style="font-size: 0.85rem; margin-left: 12px;">Total ${pagination.total}</span>
+        </div>
+      </div>` : ''}
     </div>
   </div>
 </div>
