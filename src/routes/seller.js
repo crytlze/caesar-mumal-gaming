@@ -1,34 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const path = require('path');
 const db = require('../models/database');
 const { isAuth } = require('../middleware/auth');
 const { createNotification } = require('./notif');
 
-// ========================
-// FILE UPLOAD CONFIG
-// ========================
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', 'public', 'uploads', 'listings'),
-  filename: function (req, file, cb) {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, 'listing-' + unique + ext);
-  }
-});
+const isVercel = !!process.env.VERCEL;
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp/;
-    const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mimeOk = allowed.test(file.mimetype.split('/')[1]);
-    if (extOk && mimeOk) return cb(null, true);
-    cb(new Error('Hanya file gambar (JPG, PNG, GIF, WEBP) yang diizinkan.'));
-  }
-});
+// ========================
+// FILE UPLOAD CONFIG (skip on Vercel)
+// ========================
+let upload = null;
+
+if (!isVercel) {
+  const multer = require('multer');
+  const storage = multer.diskStorage({
+    destination: path.join(__dirname, '..', '..', 'public', 'uploads', 'listings'),
+    filename: function (req, file, cb) {
+      const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname);
+      cb(null, 'listing-' + unique + ext);
+    }
+  });
+
+  upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      const allowed = /jpeg|jpg|png|gif|webp/;
+      const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
+      const mimeOk = allowed.test(file.mimetype.split('/')[1]);
+      if (extOk && mimeOk) return cb(null, true);
+      cb(new Error('Hanya file gambar (JPG, PNG, GIF, WEBP) yang diizinkan.'));
+    }
+  });
+}
 
 // ========================
 // SELLER DASHBOARD
@@ -71,7 +77,7 @@ router.get('/create', isAuth, (req, res) => {
   res.render('seller/create', { title: 'Buat Listing Baru - Caesar Mumal Gaming', games });
 });
 
-router.post('/create', isAuth, upload.single('image'), (req, res) => {
+router.post('/create', isAuth, (req, res) => {
   const { category, game_name, title, description, price, original_price, contact } = req.body;
 
   if (!category || !game_name || !title || !price) {
@@ -80,8 +86,10 @@ router.post('/create', isAuth, upload.single('image'), (req, res) => {
   }
 
   let imageUrl = req.body.image_url || '';
-  if (req.file) {
+  if (!isVercel && req.file) {
     imageUrl = '/uploads/listings/' + req.file.filename;
+  } else if (isVercel && req.body.image_url) {
+    imageUrl = req.body.image_url;
   }
 
   try {
@@ -118,11 +126,12 @@ router.get('/edit/:id', isAuth, (req, res) => {
   res.render('seller/edit', { title: 'Edit Listing - Caesar Mumal Gaming', listing, games });
 });
 
-router.post('/edit/:id', isAuth, upload.single('image'), (req, res) => {
+router.post('/edit/:id', isAuth, upload ? upload.single('image') : (req, res, next) => next(), (req, res) => {
   const { category, game_name, title, description, price, original_price, contact } = req.body;
 
   let imageUrl = req.body.image_url || '';
-  if (req.file) imageUrl = '/uploads/listings/' + req.file.filename;
+  if (!isVercel && req.file) imageUrl = '/uploads/listings/' + req.file.filename;
+  else if (isVercel && req.body.image_url) imageUrl = req.body.image_url;
 
   try {
     db.prepare(`
